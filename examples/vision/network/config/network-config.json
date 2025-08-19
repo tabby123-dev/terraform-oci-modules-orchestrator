@@ -1,83 +1,629 @@
 {
-  "network_configuration" : {
-    "default_compartment_id" : "NETWORK-CMP",
-    "network_configuration_categories" : {
-      "production" : {
-        "vcns" : {
-          "SECURITY-VCN" : {
-            "display_name"                     : "security-vcn",
-            "is_ipv6enabled"                   : false,
-            "is_oracle_gua_allocation_enabled" : false,
-            "cidr_blocks"                      : ["192.168.0.64/26"],
-            "dns_label"                        : "securityvcn",
-            "block_nat_traffic"                : false,
-
-            "subnets" : {
-              "SECURITY-VCN-FRONT-SUB" : {
-                "cidr_block"                 : "192.168.0.64/28",
-                "dhcp_options_key"           : "default_dhcp_options",
-                "display_name"               : "front-sub",
-                "dns_label"                  : "front",
-                "ipv6cidr_blocks"            : [],
-                "prohibit_internet_ingress"  : true,
-                "prohibit_public_ip_on_vnic" : true,
-                "route_table_key"            : "SECURITY-VCN-FRONT-SUB-ROUTE",
-                "security_list_keys"         : ["SECURITY-VCN-SL"]
+  "network_configuration": {
+    "default_compartment_id": "CMP-NETWORK-HUB-01",
+    "default_enable_cis_checks": false,
+    "network_configuration_categories": {
+      "hub": {
+        "category_compartment_key": "CMP-NETWORK-HUB-01",
+        "vcns": {
+          "VCN-PWA-HUB-01": {
+            "block_nat_traffic": false,
+            "cidr_blocks": [
+              "10.129.176.0/24"
+            ],
+            "display_name": "vcn-pwa-hub-01",
+            "dns_label": "vcnpwahub",
+            "is_attach_drg": false,
+            "is_create_igw": false,
+            "is_ipv6enabled": false,
+            "is_oracle_gua_allocation_enabled": false,
+            "route_tables": {
+              "RT-HUB-VCN": {
+                "display_name": "rt-hub-vcn",
+                "route_rules": {}
               },
-              "SECURITY-VCN-MID-SUB" : {
-                "cidr_block"                 : "192.168.0.80/28",
-                "dhcp_options_key"           : "default_dhcp_options",
-                "display_name"               : "mid-sub",
-                "dns_label"                  : "mid",
-                "ipv6cidr_blocks"            : [],
-                "prohibit_internet_ingress"  : true,
-                "prohibit_public_ip_on_vnic" : true,
-                "route_table_key"            : "SECURITY-VCN-MID-SUB-ROUTE",
-                "security_list_keys"         : ["SECURITY-VCN-SL"]
+              "RT-HUB-LB": {
+                "display_name": "rt-hub-lb",
+                "route_rules": {
+                }
               },
-              "SECURITY-VCN-BACK-SUB" : {
-                "cidr_block"                 : "192.168.0.96/28",
-                "dhcp_options_key"           : "default_dhcp_options",
-                "display_name"               : "back-sub",
-                "dns_label"                  : "back",
-                "ipv6cidr_blocks"            : [],
-                "prohibit_internet_ingress"  : true,
-                "prohibit_public_ip_on_vnic" : true,
-                "route_table_key"            : "SECURITY-VCN-BACK-SUB-ROUTE",
-                "security_list_keys"         : ["SECURITY-VCN-SL"]
+              "RT-HUB-FWDMZ": {
+                "display_name": "rt-hub-fwdmz",
+                "route_rules": {
+                }
+              },
+              "RT-HUB-FWINT": {
+                "display_name": "rt-hub-fwint",
+                "route_rules": {
+                }
+              },
+              "RT-HUB-NATGW": {
+                "display_name": "rt-hub-natgw",
+                "route_rules": {}
+              },
+              "RT-HUB-IGW": {
+                "display_name": "rt-hub-igw",
+                "route_rules": {}
+              },
+              "RT-HUB-MGMT": {
+                "display_name": "rt-hub-mgmt",
+                "route_rules": {
+                }
               }
             },
-
-            "security_lists" : {
-              "SECURITY-VCN-SL" : {
-                "display_name" : "basic-sl",
-                "ingress_rules" : [
-                  {
-                    "description"  : "Ingress on UDP type 3 code 4.",
-                    "stateless"    : false,
-                    "protocol"     : "UDP",
-                    "src"          : "0.0.0.0/0",
-                    "src_type"     : "CIDR_BLOCK",
-                    "icmp_type"    : 3,
-                    "icmp_code"    : 4
+            "default_security_list": {
+              "egress_rules": [],
+              "ingress_rules": [
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 3 code 4",
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 3,
+                  "icmp_code": 4
+                },
+                {
+                  "description": "TCP 22 traffic from any source",
+                  "protocol": "TCP",
+                  "dst_port_max": 22,
+                  "dst_port_min": 22,
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "stateless": false
+                },
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 8 (Echo)",
+                  "src": "10.0.0.0/21",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 8,
+                  "icmp_code": 0
+                }
+              ]
+            },
+            "subnets": {
+              "SN-PWA-HUB-FW-DMZ-01": {
+                "cidr_block": "10.129.176.0/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-fw-dmz-01",
+                "dns_label": "snpwahubfwdmz",
+                "prohibit_internet_ingress": false,
+                "prohibit_public_ip_on_vnic": false,
+                "route_table_key": "RT-HUB-FWDMZ",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-HUB-LB-01": {
+                "availability_domain": null,
+                "cidr_block": "10.129.176.32/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-lb-01",
+                "dns_label": "snpwahublb",
+                "prohibit_internet_ingress": false,
+                "prohibit_public_ip_on_vnic": false,
+                "route_table_key": "RT-HUB-LB",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-HUB-FW-INT-01": {
+                "cidr_block": "10.129.176.64/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-fw-int-01",
+                "dns_label": "snpwahubfwint",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-HUB-FWINT",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-HUB-MGMT-01": {
+                "cidr_block": "10.129.176.96/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-mgmt-01",
+                "dns_label": "snpwahubmgmt",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-HUB-MGMT",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-HUB-LOGS-01": {
+                "cidr_block": "10.129.176.128/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-logs-01",
+                "dns_label": "snpwahublogs",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-HUB-MGMT",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-HUB-DNS-01": {
+                "cidr_block": "10.129.176.160/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-hub-dns-01",
+                "dns_label": "snpwahubdns",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-HUB-MGMT",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              }
+            },
+            "vcn_specific_gateways": {
+              "internet_gateways": {
+                "IGW-PWA-HUB": {
+                  "display_name": "igw-pwa-hub",
+                  "route_table_key": "RT-HUB-IGW"
+                }
+              },
+              "nat_gateways": {
+                "NGW-PWA-HUB": {
+                  "display_name": "ngw-pwa-hub",
+                  "route_table_key": "RT-HUB-NATGW"
+                }
+              },
+              "service_gateways": {
+                "SGW-PWA-HUB": {
+                  "display_name": "sgw-pwa-hub",
+                  "services": "all-services"
+                }
+              }
+            }
+          }
+        },
+        "non_vcn_specific_gateways": {
+          "dynamic_routing_gateways": {
+            "DRG-PWA-HUB": {
+              "display_name": "drg-pwa-hub",
+              "drg_attachments": {
+                "DRGATT-VCN-PWA-HUB-01": {
+                  "display_name": "drgatt-vcn-pwa-hub-01",
+                  "drg_route_table_key": "DRGRT-PWA-HUB",
+                  "network_details": {
+                    "attached_resource_key": "VCN-PWA-HUB-01",
+                    "type": "VCN",
+                    "route_table_key": "RT-HUB-VCN"
                   }
-                ],
-                "egress_rules" : []
+                },
+                "DRGATT-VCN-PWA-P-EBS-01": {
+                  "display_name": "drgatt-vcn-pwa-p-ebs-01",
+                  "drg_route_table_key": "DRGRT-PWA-SPOKES",
+                  "network_details": {
+                    "attached_resource_key": "VCN-PWA-P-EBS-01",
+                    "type": "VCN"
+                  }
+                },
+                "DRGATT-VCN-PWA-NP-EBS-01": {
+                  "display_name": "drgatt-vcn-pwa-np-ebs-01",
+                  "drg_route_table_key": "DRGRT-PWA-SPOKES",
+                  "network_details": {
+                    "attached_resource_key": "VCN-PWA-NP-EBS-01",
+                    "type": "VCN"
+                  }
+                },
+                "DRGATT-VCN-PWA-MGT-EBS-01": {
+                  "display_name": "drgatt-vcn-pwa-mgt-ebs-01",
+                  "drg_route_table_key": "DRGRT-PWA-SPOKES",
+                  "network_details": {
+                    "attached_resource_key": "VCN-PWA-MGT-EBS-01",
+                    "type": "VCN"
+                  }
+                }
+              },
+              "drg_route_distributions": {
+                "IRTD-PWA-HUB": {
+                  "display_name": "irtd-pwa-hub",
+                  "distribution_type": "IMPORT",
+                  "statements": {
+                    "ROUTE-TO-VCN-PROD": {
+                      "priority": 10,
+                      "action": "ACCEPT",
+                      "match_criteria": {
+                        "match_type": "DRG_ATTACHMENT_ID",
+                        "attachment_type": "VCN",
+                        "drg_attachment_key": "DRGATT-VCN-PWA-P-EBS-01"
+                      }
+                    },
+                    "ROUTE-TO-VCN-NONPROD": {
+                      "priority": 20,
+                      "action": "ACCEPT",
+                      "match_criteria": {
+                        "match_type": "DRG_ATTACHMENT_ID",
+                        "attachment_type": "VCN",
+                        "drg_attachment_key": "DRGATT-VCN-PWA-NP-EBS-01"
+                      }
+                    },
+                    "ROUTE-TO-VCN-MGT": {
+                      "priority": 30,
+                      "action": "ACCEPT",
+                      "match_criteria": {
+                        "match_type": "DRG_ATTACHMENT_ID",
+                        "attachment_type": "VCN",
+                        "drg_attachment_key": "DRGATT-VCN-PWA-MGT-EBS-01"
+                      }
+                    }
+                  }
+                }
+              },
+              "drg_route_tables": {
+                "DRGRT-PWA-HUB": {
+                  "display_name": "drgrt-pwa-hub",
+                  "import_drg_route_distribution_key": "IRTD-PWA-HUB",
+                  "is_ecmp_enabled": false,
+                  "route_rules": {}
+                },
+                "DRGRT-PWA-SPOKES": {
+                  "display_name": "drgrt-pwa-spokes",
+                  "is_ecmp_enabled": false,
+                  "route_rules": {
+                    "DRGRT-PWA-SPOKES-STATIC-ROUTE": {
+                      "destination": "0.0.0.0/0",
+                      "destination_type": "CIDR_BLOCK",
+                      "next_hop_drg_attachment_key": "DRGATT-VCN-PWA-HUB-01"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "prod": {
+        "category_compartment_id": "CMP-P-NETWORK-01",
+        "vcns": {
+          "VCN-PWA-P-EBS-01": {
+            "block_nat_traffic": false,
+            "cidr_blocks": [
+              "10.129.177.0/24"
+            ],
+            "display_name": "vcn-pwa-p-ebs-01",
+            "dns_label": "vcnpwapebs",
+            "is_attach_drg": false,
+            "is_create_igw": false,
+            "is_ipv6enabled": false,
+            "is_oracle_gua_allocation_enabled": false,
+            "route_tables": {
+              "RT-P-EBS": {
+                "display_name": "rt-p-ebs",
+                "route_rules": {
+                }
               }
             },
-
-            "route_tables" : {
-              "SECURITY-VCN-FRONT-SUB-ROUTE" : {
-                "display_name" : "front-sub-route",
-                "route_rules" : {}
+            "default_security_list": {
+              "egress_rules": [],
+              "ingress_rules": [
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 3 code 4",
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 3,
+                  "icmp_code": 4
+                },
+                {
+                  "description": "TCP 22 traffic from any source",
+                  "protocol": "TCP",
+                  "dst_port_max": 22,
+                  "dst_port_min": 22,
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "stateless": false
+                },
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 8 (Echo)",
+                  "src": "10.0.0.0/21",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 8,
+                  "icmp_code": 0
+                }
+              ]
+            },
+            "subnets": {
+              "SN-PWA-P-EBS-LB-EXT-01": {
+                "cidr_block": "10.129.177.0/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-lb-ext-01",
+                "dns_label": "snpwapebslbext",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
               },
-              "SECURITY-VCN-MID-SUB-ROUTE" : {
-                "display_name" : "mid-sub-route",
-                "route_rules" : {}
+              "SN-PWA-P-EBS-LB-INT-01": {
+                "cidr_block": "10.129.177.32/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-lb-int-01",
+                "dns_label": "snpwapebslbint",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
               },
-              "SECURITY-VCN-BACK-SUB-ROUTE" : {
-                "display_name" : "back-sub-route",
-                "route_rules" : {}
+              "SN-PWA-P-EBS-APP-EXT-01": {
+                "cidr_block": "10.129.177.64/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-app-ext-01",
+                "dns_label": "snpebsappext",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-P-EBS-APP-INT-01": {
+                "cidr_block": "10.129.177.96/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-app-int-01",
+                "dns_label": "snpebsappint",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-P-EBS-DB-01": {
+                "cidr_block": "10.129.177.128/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-db-01",
+                "dns_label": "snpwapebsdb",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-P-EBS-FSS-01": {
+                "cidr_block": "10.129.177.160/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-p-ebs-fss-01",
+                "dns_label": "snpwapebsfss",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-P-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              }
+            },
+            "vcn_specific_gateways": {
+              "service_gateways": {
+                "SGW-PWA-P-EBS": {
+                  "display_name": "sgw-pwa-p-ebs",
+                  "services": "all-services"
+                }
+              }
+            }
+          }
+        }
+      },
+      "nonprod": {
+        "category_compartment_id": "CMP-NP-NETWORK-01",
+        "vcns": {
+          "VCN-PWA-NP-EBS-01": {
+            "block_nat_traffic": false,
+            "cidr_blocks": [
+              "10.129.178.0/24"
+            ],
+            "display_name": "vcn-pwa-np-ebs-01",
+            "dns_label": "vcnpwanpebs",
+            "is_attach_drg": false,
+            "is_create_igw": false,
+            "is_ipv6enabled": false,
+            "is_oracle_gua_allocation_enabled": false,
+            "route_tables": {
+              "RT-NP-EBS": {
+                "display_name": "rt-np-ebs",
+                "route_rules": {}
+              }
+            },
+            "default_security_list": {
+              "egress_rules": [],
+              "ingress_rules": [
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 3 code 4",
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 3,
+                  "icmp_code": 4
+                },
+                {
+                  "description": "TCP 22 traffic from any source",
+                  "protocol": "TCP",
+                  "dst_port_max": 22,
+                  "dst_port_min": 22,
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "stateless": false
+                },
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 8 (Echo)",
+                  "src": "10.0.0.0/21",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 8,
+                  "icmp_code": 0
+                }
+              ]
+            },
+            "subnets": {
+              "SN-PWA-NP-EBS-LB-EXT-01": {
+                "cidr_block": "10.129.178.0/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-lb-ext-01",
+                "dns_label": "snpwanpebslbext",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-NP-EBS-LB-INT-01": {
+                "cidr_block": "10.129.178.32/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-lb-int-01",
+                "dns_label": "snpwanpebslbint",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-NP-EBS-APP-EXT-01": {
+                "cidr_block": "10.129.178.64/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-app-ext-01",
+                "dns_label": "snnpebsappext",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-NP-EBS-APP-INT-01": {
+                "cidr_block": "10.129.178.96/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-app-int-01",
+                "dns_label": "snnpebsappint",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-NP-EBS-DB-01": {
+                "cidr_block": "10.129.178.128/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-db-01",
+                "dns_label": "snpwanpebsdb",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              },
+              "SN-PWA-NP-EBS-FSS-01": {
+                "cidr_block": "10.129.178.160/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-np-ebs-fss-01",
+                "dns_label": "snpwanpebsfss",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-NP-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              }
+            },
+            "vcn_specific_gateways": {
+              "service_gateways": {
+                "SGW-PWA-NP-EBS": {
+                  "display_name": "sgw-pwa-np-ebs",
+                  "services": "all-services"
+                }
+              }
+            }
+          }
+        }
+      },
+      "mgt": {
+        "category_compartment_id": "CMP-EBSCM-01",
+        "vcns": {
+          "VCN-PWA-MGT-EBS-01": {
+            "block_nat_traffic": false,
+            "cidr_blocks": [
+              "10.129.179.0/24"
+            ],
+            "display_name": "vcn-pwa-mgt-ebs-01",
+            "dns_label": "vcnpwamgtebs",
+            "is_attach_drg": false,
+            "is_create_igw": false,
+            "is_ipv6enabled": false,
+            "is_oracle_gua_allocation_enabled": false,
+            "route_tables": {
+              "RT-MGT-EBS": {
+                "display_name": "rt-mgt-ebs",
+                "route_rules": {}
+              }
+            },
+            "default_security_list": {
+              "egress_rules": [],
+              "ingress_rules": [
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 3 code 4",
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 3,
+                  "icmp_code": 4
+                },
+                {
+                  "description": "TCP 22 traffic from any source",
+                  "protocol": "TCP",
+                  "dst_port_max": 22,
+                  "dst_port_min": 22,
+                  "src": "0.0.0.0/0",
+                  "src_type": "CIDR_BLOCK",
+                  "stateless": false
+                },
+                {
+                  "stateless": false,
+                  "protocol": "ICMP",
+                  "description": "ICMP type 8 (Echo)",
+                  "src": "10.0.0.0/21",
+                  "src_type": "CIDR_BLOCK",
+                  "icmp_type": 8,
+                  "icmp_code": 0
+                }
+              ]
+            },
+            "subnets": {
+              "SN-PWA-MGT-EBS-CM-01": {
+                "cidr_block": "10.129.179.0/27",
+                "dhcp_options_key": "default_dhcp_options",
+                "display_name": "sn-pwa-mgt-ebs-cm-01",
+                "dns_label": "snpwamgtebscm",
+                "prohibit_internet_ingress": true,
+                "prohibit_public_ip_on_vnic": true,
+                "route_table_key": "RT-MGT-EBS",
+                "security_list_keys": [
+                  "default_security_list"
+                ]
+              }
+            },
+            "vcn_specific_gateways": {
+              "service_gateways": {
+                "SGW-PWA-MGT-EBS": {
+                  "display_name": "sgw-pwa-mgt-ebs",
+                  "services": "all-services"
+                }
               }
             }
           }
@@ -85,4 +631,4 @@
       }
     }
   }
-}  
+}
