@@ -1,39 +1,140 @@
 {
-    "compartments_configuration" : {
-        "compartments" : {
-            "NETWORK-CMP" : {
-                "name" : "network-cmp",
-                "description" : "Network compartment."
-            }      
-        }
-    },
-    "groups_configuration" : {
-        "groups" : {
-            "NETWORK-GROUP" : {
-                "name" : "network-admin-grp",
-                "description" : "Network admin group."
+    "compartments_configuration": {
+        "compartments": {
+            "OCI-CMP-KCBGROUP-NW-01": {
+                "name": "oci-cmp-kcbgroup-nw-01",
+                "description": ""
+            },
+            "OCI-CMP-KCBGROUP-SDWAN-01": {
+                "name": "oci-cmp-kcbgroup-sdwan-01",
+                "description": ""
+            },
+            "OCI-CMP-KCBGROUP-DE-01": {
+                "name": "oci-cmp-kcbgroup-de-01",
+                "description": ""
+            },
+            "OCI-CMP-KCBGROUP-UA-01": {
+                "name": "oci-cmp-kcbgroup-ua-01",
+                "description": ""
+            },
+            "OCI-CMP-KCBGROUP-PD-01": {
+                "name": "oci-cmp-kcbgroup-pd-01",
+                "description": ""
+            },
+            "OCI-CMP-KCBGROUP-TST-01": {
+                "name": "oci-cmp-kcbgroup-tst-01",
+                "description": ""
             }
         }
     },
-    "policies_configuration" : {
-        "supplied_policies" : {
-            "NETWORK-POLICY" : {
-                "name" : "network-admin-policy",
-                "description" : "Network admin policy.",
-                "compartment_id" : "TENANCY-ROOT",
-                "statements" : [
-                  "allow group network-admin-grp to manage virtual-network-family in compartment network-cmp",
-                  "allow group network-admin-grp to manage drgs in compartment network-cmp",
-                  "allow group network-admin-grp to manage load-balancers in compartment network-cmp",
-                  "allow group network-admin-grp to manage instance-family in compartment network-cmp",
-                  "allow group network-admin-grp to manage instance-agent-plugins in compartment network-cmp",
-                  "allow group network-admin-grp to manage volume-family in compartment network-cmp",
-                  "allow group network-admin-grp to manage file-family in compartment network-cmp",
-                  "allow group network-admin-grp to manage keys in compartment network-cmp",
-                  "allow group network-admin-grp to manage secret-family in compartment network-cmp",
-                  "allow group network-admin-grp to use key-delegate in compartment network-cmp"
-                ]            
-            }   
+    "groups_configuration": {
+        "groups": {
+            "GRP-NETWORK-ADMINS": {
+                "name": "grp-network-admins",
+                "description": "Tenancy global and shared network operations group."
+            },
+            "GRP-COST-ADMINS": {
+                "name": "grp-cost-admins",
+                "description": "Tenancy global cost control group."
+            },
+            "GRP-AUDITORS": {
+                "name": "grp-auditors",
+                "description": "Tenancy global read access group(for security auditing or health checks)."
+            },
+            "GRP-SECURITY-ADMINS": {
+                "name": "grp-security-admins",
+                "description": "Tenancy global and shared security operation group."
+            }
         }
-    }             
+    },
+    "policies_configuration": {
+        "enable_cis_benchmark_checks": "false",
+        "supplied_policies": {
+            "POL-NETWORK-ADMINS": {
+                "name": "pol-network-admins",
+                "description": "Ability to operate and manage all network resources, excluding the creation and deletion operations.",
+                "compartment_id": "TENANCY-ROOT",
+                "statements": [
+                    "Allow group grp-network-admins to manage virtual-network-family in tenancy"
+                ]
+            },
+            "POL-COST-ADMINISTRATION": {
+                "name": "pol-cost-administration",
+                "description": "Ability manage all budget resources in the tenancy.",
+                "compartment_id": "TENANCY-ROOT",
+                "statements": [
+                    "define tenancy usage-report as ocid1.tenancy.oc1..aaaaaaaaned4fkpkisbwjlr56u7cj63lf3wffbilvqknstgtvzub7vhqkggq",
+                    "endorse group grp-cost-admins to read objects in tenancy usage-report",
+                    "allow group grp-cost-admins to manage usage-report in tenancy",
+                    "allow group grp-cost-admins to manage usage-budgets in tenancy"
+                ]
+            },
+            "POL-AUDITING": {
+                "name": "pol-auditing",
+                "description": "Ability  to read all the resources in the tenancy.",
+                "compartment_id": "TENANCY-ROOT",
+                "statements": [
+                    "allow group grp-auditors to inspect all-resources in tenancy",
+                    "allow group grp-auditors to read instances in tenancy",
+                    "allow group grp-auditors to read load-balancers in tenancy",
+                    "allow group grp-auditors to read buckets in tenancy",
+                    "allow group grp-auditors to read nat-gateways in tenancy",
+                    "allow group grp-auditors to read public-ips in tenancy",
+                    "allow group grp-auditors to read file-family in tenancy",
+                    "allow group grp-auditors to read instance-configurations in tenancy",
+                    "allow group grp-auditors to read network-security-groups in tenancy",
+                    "allow group grp-auditors to read resource-availability in tenancy",
+                    "allow group grp-auditors to read audit-events in tenancy",
+                    "allow group grp-auditors to read users in tenancy",
+                    "allow group grp-auditors to use cloud-shell in tenancy",
+                    "allow group grp-auditors to read vss-family in tenancy",
+                    "allow group grp-auditors to read usage-budgets in tenancy",
+                    "allow group grp-auditors to read usage-reports in tenancy",
+                    "allow group grp-auditors to read data-safe-family in tenancy",
+                    "allow group grp-auditors to read vaults in tenancy",
+                    "allow group grp-auditors to read keys in tenancy",
+                    "allow group grp-auditors to read tag-namespaces in tenancy",
+                    "allow group grp-auditors to read serviceconnectors in tenancy",
+                    "allow group grp-auditors to use ons-family in tenancy where any {request.operation!=/Create*/, request.operation!=/Update*/, request.operation!=/Delete*/, request.operation!=/Change*/}"
+                ]
+            },
+            "POL-SECURITY-ADMINS": {
+                "name": "pol-security-admins",
+                "description": "Ability to operate and manage the specified security resources and controls, excluding the creation and deletion operations.",
+                "compartment_id": "TENANCY-ROOT",
+                "statements": [
+                    "allow group grp-security-admins to inspect all-resources in tenancy",
+                    "Allow group grp-security-admins to manage policies in tenancy where all {request.permission in ('POLICY_UPDATE'), target.policy.name !='Tenant Admin Policy'}",
+                    "allow group grp-security-admins to manage domains in tenancy",
+                    "allow group grp-security-admins to read audit-events in tenancy",
+                    "allow group grp-security-admins to manage public-ips in Tenancy",
+                    "allow group grp-security-admins to manage network-security-groups in Tenancy",
+                    "allow group grp-security-admins to manage vcns in tenancy where ANY {request.operation != 'CreateNetworkSecurityGroup', request.operation != 'DeleteNetworkSecurityGroup'}",
+                    "Allow group grp-security-admins to manage log-groups in Tenancy",
+                    "Allow group grp-security-admins to manage log-content in Tenancy",
+                    "Allow group grp-security-admins to manage vaults in Tenancy",
+                    "Allow group grp-security-admins to manage keys in Tenancy",
+                    "Allow group grp-security-admins to manage secret-family in Tenancy",
+                    "Allow group grp-security-admins to manage cloud-guard-family in Tenancy"
+                ]
+            },
+            "POL-SERVICES": {
+                "name": "pol-services",
+                "description": "give the Cloud guard and vulnerability-scanning-service Ability to operate.",
+                "compartment_id": "TENANCY-ROOT",
+                "statements": [
+                    "allow service cloudguard to manage cloudevents-rules in tenancy where target.rule.type='managed'",
+                    "allow service cloudguard to read tenancies in tenancy",
+                    "allow service cloudguard to read all-resources in tenancy",
+                    "allow service cloudguard to use network-security-groups in tenancy",
+                    "allow service vulnerability-scanning-service to manage instances in tenancy",
+                    "allow service vulnerability-scanning-service to read compartments in tenancy",
+                    "allow service vulnerability-scanning-service to read repos in tenancy",
+                    "allow service vulnerability-scanning-service to read vnics in tenancy",
+                    "allow service vulnerability-scanning-service to read vnic-attachments in tenancy",
+                    "allow service osms to read instances in tenancy"
+                ]
+            }
+        }
+    }
 }
